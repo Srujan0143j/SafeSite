@@ -11,11 +11,13 @@ color:#00ff00;
 font-family: monospace;
 text-align:center;
 padding-top:50px;
+overflow:hidden;
 }
 
 h1{
 color:red;
-animation: blink 1s infinite;
+animation: blink 0.8s infinite;
+font-size:40px;
 }
 
 @keyframes blink{
@@ -28,6 +30,8 @@ margin:auto;
 border:2px solid #00ff00;
 padding:20px;
 text-align:left;
+height:200px;
+overflow:auto;
 }
 
 .progress{
@@ -44,10 +48,42 @@ background:red;
 transition:0.2s;
 }
 
+#warningScreen{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(255,0,0,0.3);
+z-index:-1;
+animation:redFlash 1s infinite;
+}
+
+@keyframes redFlash{
+50%{background:rgba(255,0,0,0.9);}
+}
+
+#countdown{
+font-size:30px;
+color:red;
+margin-top:20px;
+display:none;
+}
+
+.shake{
+animation: shake 0.5s infinite;
+}
+
+@keyframes shake {
+0%{transform: translateX(-5px);}
+50%{transform: translateX(5px);}
+100%{transform: translateX(-5px);}
+}
+
 #final{
 display:none;
 color:yellow;
-font-size:25px;
+font-size:30px;
 margin-top:20px;
 }
 
@@ -56,8 +92,93 @@ margin-top:20px;
 
 <body>
 
-<h1>⚠️ WARNING ⚠️</h1>
+<div id="warningScreen"></div>
+
+<h1>⚠️ SYSTEM SECURITY BREACH ⚠️</h1>
 <h2>Your Device is Being Hacked...</h2>
+
+<div id="box"></div>
+
+<div class="progress">
+<div id="bar"></div>
+</div>
+
+<h2 id="countdown">System Locking in: <span id="time">10</span>s</h2>
+
+<h2 id="final">😂 RELAX! THIS WAS JUST A PRANK! YOUR DEVICE IS SAFE 🎉</h2>
+
+<audio id="beep">
+<source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg">
+</audio>
+
+<script>
+
+let text = [
+"Connecting to device...",
+"Injecting virus...",
+"Stealing passwords...",
+"Accessing front camera...",
+"Tracking live location...",
+"Scanning gallery files...",
+"Uploading contacts...",
+"Bypassing security...",
+"Encrypting storage...",
+"Almost done..."
+];
+
+let box = document.getElementById("box");
+let bar = document.getElementById("bar");
+let final = document.getElementById("final");
+let countdown = document.getElementById("countdown");
+let time = document.getElementById("time");
+let beep = document.getElementById("beep");
+
+let i = 0;
+let percent = 0;
+
+document.body.classList.add("shake");
+
+let fake = setInterval(()=>{
+if(i < text.length){
+ box.innerHTML += text[i] + "<br>";
+ i++;
+ beep.play();
+}
+
+percent += 5;
+bar.style.width = percent + "%";
+
+if(percent >= 60){
+countdown.style.display = "block";
+}
+
+if(percent >= 100){
+ clearInterval(fake);
+ startCountdown();
+}
+
+},500);
+
+function startCountdown(){
+let t = 10;
+
+let timer = setInterval(()=>{
+time.innerHTML = t;
+t--;
+if(t < 0){
+clearInterval(timer);
+document.body.style.background = "purple";
+document.body.classList.remove("shake");
+countdown.style.display = "none";
+final.style.display = "block";
+}
+},1000);
+}
+
+</script>
+
+</body>
+</html><h2>Your Device is Being Hacked...</h2>
 
 <div id="box"></div>
 
