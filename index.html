@@ -1,233 +1,206 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Android Security Breach</title>
+<meta charset="UTF-8">
+<title>Security Alert</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
-margin:0;
-overflow:hidden;
-background:black;
-color:#00ffb3;
-font-family:monospace;
+  background:black;
+  margin:0;
+  font-family:monospace;
+  color:#ff3b3b;
+  overflow:hidden;
 }
 
-/* MATRIX BACKGROUND */
-canvas{
-position:fixed;
-top:0;
-left:0;
-z-index:-1;
+/* Flashing Red Header */
+.alert-header{
+  text-align:center;
+  padding:12px;
+  font-size:20px;
+  font-weight:bold;
+  background:#150000;
+  border-bottom:2px solid red;
+  animation:flash 1s infinite;
+}
+@keyframes flash{
+  0%{color:#ff0000}
+  50%{color:#ff7b7b}
+  100%{color:#ff0000}
 }
 
-/* HEADER */
-.header{
-background:#010101;
-color:#00ffbf;
-padding:12px;
-text-align:center;
-border-bottom:2px solid #00ff9c;
-letter-spacing:1px;
-text-shadow:0 0 8px #00ffd5;
+/* Pulse Border Box */
+.box{
+  border:2px solid red;
+  width:85%;
+  margin:30px auto;
+  border-radius:10px;
+  padding:20px;
+  box-shadow:0 0 25px red;
+  animation:pulse 1.3s infinite;
+}
+@keyframes pulse{
+  0%{box-shadow:0 0 10px red;}
+  50%{box-shadow:0 0 40px red;}
+  100%{box-shadow:0 0 10px red;}
 }
 
-/* TERMINAL */
-.console{
-height:55vh;
-overflow:hidden;
-padding:15px;
+/* Terminal */
+.terminal{
+  background:#0c0000;
+  border:1px solid red;
+  height:200px;
+  overflow:hidden;
+  padding:10px;
+  font-size:14px;
+  color:#ff9090;
 }
 
-.line{
-opacity:0;
-animation:show .2s forwards;
-margin:6px 0;
+/* Progress */
+.progress{
+  width:90%;
+  background:#240000;
+  border-radius:20px;
+  margin:20px auto;
+}
+.bar{
+  width:2%;
+  height:18px;
+  background:red;
+  border-radius:20px;
+  transition:0.3s;
 }
 
-@keyframes show{
-from{opacity:0;transform:translateY(5px);}
-to{opacity:1;transform:translateY(0);}
+/* Final Reveal */
+.hidden{display:none;}
+.final-title{
+  font-size:30px;
+  color:white;
 }
-
-.glow{
-color:#00ffbf;
-text-shadow:0 0 10px #00ffd5;
+.prank{
+  font-size:20px;
+  color:#ffcc00;
 }
-
-/* WARNING BAR */
-.alert{
-text-align:center;
-font-size:18px;
-margin-top:5px;
-color:#ff0033;
-animation:blink 1s infinite;
-text-shadow:0 0 12px red;
+button{
+  background:red;
+  border:none;
+  padding:10px 18px;
+  border-radius:8px;
+  color:white;
+  font-weight:bold;
 }
-
-@keyframes blink{
-50%{opacity:0;}
+.siren{
+  animation:glow 0.8s infinite;
 }
-
-/* RADAR SCAN */
-.radar-box{
-width:200px;
-height:200px;
-border:3px solid #00ff9c;
-border-radius:50%;
-margin:10px auto;
-position:relative;
-overflow:hidden;
-box-shadow:0 0 10px #00ffbf;
+@keyframes glow{
+  0%{text-shadow:0 0 10px red;}
+  50%{text-shadow:0 0 40px red;}
+  100%{text-shadow:0 0 10px red;}
 }
-
-.radar{
-width:100%;
-height:100%;
-background:conic-gradient(
-rgba(0,255,180,.4),
-transparent 60%
-);
-animation:spin 2s linear infinite;
-}
-
-@keyframes spin{
-to{transform:rotate(360deg);}
-}
-
-/* PROGRESS BAR */
-.barBox{
-width:90%;
-border:2px solid #00ffbf;
-margin:15px auto;
-height:22px;
-border-radius:6px;
-overflow:hidden;
-}
-
-#bar{
-height:100%;
-width:0%;
-background:linear-gradient(90deg,#00ff6a,#00ffaa);
-box-shadow:0 0 20px #00ff6a inset;
-}
-
 </style>
 </head>
 
 <body>
 
-<canvas id="matrix"></canvas>
-
-<div class="header">
-ANDROID SECURITY • CRITICAL DEVICE BREACH MODE
+<div class="alert-header siren">
+⚠ SECURITY ALERT • SYSTEM ACTIVITY DETECTED ⚠
 </div>
 
-<p class="alert">CRITICAL WARNING — DEVICE COMPROMISED</p>
+<div class="box" id="scanBox">
 
-<div class="radar-box">
-<div class="radar"></div>
+<h2 style="text-align:center;color:white;">
+🔴 Processing System Activity...
+</h2>
+
+<div class="terminal" id="terminal"></div>
+
+<div class="progress">
+  <div class="bar" id="bar"></div>
 </div>
 
-<div class="console" id="console"></div>
-
-<div class="barBox">
-<div id="bar"></div>
+<h2 id="status" style="text-align:center;">Initializing...</h2>
 </div>
+
+<div id="reveal" class="hidden" style="text-align:center;margin-top:40px;">
+<div class="final-title">🎉 RELAX! YOU GOT PRANKED 😄</div>
+<p class="prank">
+This was only a harmless visual prank animation.  
+No scanning • No access • Nothing happened 😊
+</p>
+<button onclick="location.reload()">Run Again</button>
+</div>
+
+<!-- Alarm -->
+<audio id="alarm" loop>
+<source src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" type="audio/ogg">
+</audio>
 
 <script>
-/******** MATRIX BACKGROUND *********/
-const c=document.getElementById("matrix");
-const ctx=c.getContext("2d");
-c.height=window.innerHeight;
-c.width=window.innerWidth;
-let chars="01";
-chars=chars.split("");
-let font=14;
-let columns=c.width/font;
-let drops=[];
-for(let x=0;x<columns;x++) drops[x]=1;
+let terminal = document.getElementById("terminal");
+let bar = document.getElementById("bar");
+let statusTxt = document.getElementById("status");
+let alarm = document.getElementById("alarm");
 
-function draw(){
-ctx.fillStyle="rgba(0,0,0,0.08)";
-ctx.fillRect(0,0,c.width,c.height);
-ctx.fillStyle="#00ff9c";
-ctx.font=font+"px monospace";
-for(let i=0;i<drops.length;i++){
-let text=chars[Math.floor(Math.random()*chars.length)];
-ctx.fillText(text,i*font,drops[i]*font);
-if(drops[i]*font>c.height && Math.random()>0.95)
-drops[i]=0;
-drops[i]++;
-}
-}
-setInterval(draw,35);
-
-
-/******** TERMINAL LOGS *********/
-// Your realistic hacking lines + extra lines
-let logs = [
-"Connecting to device...",
-"Injecting malware...",
-"Accessing camera...",
-"Reading SIM data...",
-"Opening WhatsApp...",
-"Uploading contacts...",
-"Encrypting Storage...",
-"SIM Deactivation Started...",
-"Almost Done...",
-"[BOOT] Secure kernel verified",
-"[SYSTEM] Enforcing SELinux policies",
-"[SECURITY] Launching advanced threat scan",
-"[ACCESS] Requesting elevated shell privileges",
-"[ACCESS] Root privileges confirmed",
-"[SCAN] Inspecting /system partition integrity...",
-"[SCAN] Monitoring runtime activities...",
-"[PROCESS] Detecting suspicious background tasks...",
-"[NETWORK] Mapping IP / IMEI / MAC",
-"[NETWORK] Capturing encrypted traffic packets",
-"[AUTH] Bypassing Google Play Protect",
-"[SECURITY] Validating trust certificates",
-"[DATA] Accessing credential vault",
-"[STORAGE] Reading device storage sectors",
-"[MEDIA] Scanning hidden media cache",
-"[SIM] Extracting SIM authentication key",
-"[SYSTEM] Security framework override detected",
-"[SECURITY] Live threat detected",
-"[SYSTEM] Initiating lockdown protocol",
-"[STATUS] DEVICE BREACH CONFIRMED"
+let lines = [
+"Initializing security modules...",
+"Syncing visual logs...",
+"Activating monitoring frames...",
+"Checking animation packets...",
+"Running display simulation...",
+"Rendering alert graphics...",
+"Finalizing alert sequence..."
 ];
 
-let consoleBox=document.getElementById("console");
-let bar=document.getElementById("bar");
-let i=0;
-let percent=0;
+let index = 0;
+let progress = 2;
 
-let beep=new Audio("https://assets.mixkit.co/sfx/preview/mixkit-system-beep-buzzer-fail-2964.mp3");
-beep.volume=0.6;
-
-let seq=setInterval(()=>{
-
-if(i<logs.length){
-let div=document.createElement("div");
-div.className="line glow";
-div.innerHTML=logs[i];
-consoleBox.appendChild(div);
-consoleBox.scrollTop=consoleBox.scrollHeight;
-
-beep.currentTime=0;
-beep.play().catch(()=>{});
-
-if(navigator.vibrate) navigator.vibrate(120);
-
-i++;
+// Typing Effect
+function typeLine(text){
+ let i = 0;
+ let typer = setInterval(()=>{
+   terminal.innerHTML += text[i];
+   i++;
+   terminal.scrollTop = terminal.scrollHeight;
+   if(i === text.length){
+     clearInterval(typer);
+     terminal.innerHTML += "<br>";
+   }
+ },40);
 }
 
-percent += Math.floor(100/logs.length);
-bar.style.width=percent + "%";
+alarm.volume = 1;
+alarm.play().catch(()=>{});
 
-},180);
+// MAIN LOOP
+let process = setInterval(()=>{
+ if(index < lines.length){
+   typeLine("> " + lines[index]);
+   index++;
+   progress += 12;
+   bar.style.width = progress + "%";
+   statusTxt.innerText = "Processing... " + progress + "%";
 
+   if(navigator.vibrate){
+     navigator.vibrate([150,80,150]);
+   }
+ }
+
+ if(progress >= 98){
+   clearInterval(process);
+   statusTxt.innerText = "Finishing sequence...";
+
+   setTimeout(()=>{
+      alarm.pause();
+      if(navigator.vibrate){
+        navigator.vibrate([300,200,300,200,400]);
+      }
+      document.getElementById("scanBox").classList.add("hidden");
+      document.getElementById("reveal").classList.remove("hidden");
+   },2000);
+ }
+
+},1200);
 </script>
 
 </body>
